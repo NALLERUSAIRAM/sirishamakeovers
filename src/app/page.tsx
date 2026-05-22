@@ -9,7 +9,7 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState([
-    { role: 'ai', text: "Hi! I'm Lumina ✨. Need help with our services or want to book a session?" }
+    { role: 'ai', text: "Hi andi! Nenu Lumina ✨. Maa services gurinchi details kavalanna leda booking cheskovalanna nannu adagandi!" }
   ]);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -18,54 +18,34 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); 
   }, [messages]);
 
-  // అడ్వాన్స్‌డ్ AI బ్రెయిన్ (కస్టమర్ అడిగే అన్ని ప్రశ్నల కోసం)
-  const getLuminaResponse = (input: string) => {
-    const text = input.toLowerCase();
-
-    // 1. Greetings
-    if (["hi", "hello", "hey", "namaste", "hye", "hy"].some(word => text.includes(word))) {
-      return "Hello! Welcome to Sirisha Makeovers ✨. How can I make your special day more beautiful?";
-    } 
-    // 2. Pricing, Packages & Offers
-    else if (["price", "cost", "entha", "rate", "charges", "package", "advance", "trial", "hd", "airbrush", "offer", "discount", "emi", "combo"].some(word => text.includes(word))) {
-      return "Our packages (HD/Airbrush) are customized based on the look you want! An advance payment is required to block your date. Please click 'Book Now' or message us on WhatsApp for exact pricing and trial details.";
-    } 
-    // 3. Skin, Makeup Quality & Brands
-    else if (["skin", "oily", "sensitive", "acne", "marks", "waterproof", "natural", "dark", "sweat", "brands", "mac", "huda", "products", "hygiene", "long", "hours"].some(word => text.includes(word))) {
-      return "We use 100% original, premium, and safe products suitable for all skin types and tones. Our makeup is highly long-lasting, sweat-proof, and flawless! 💖";
-    } 
-    // 4. Services Included
-    else if (["saree", "draping", "hairstyle", "hair", "jewellery", "lashes", "nails", "groom", "bridesmaid", "men", "mehendi", "haldi", "reception", "engagement", "party", "baby", "shoot"].some(word => text.includes(word))) {
-      return "Yes! We provide Makeup, Hairstyling, and Saree Draping for Bridal, Reception, Haldi, Party, and Shoots. We also cater to bridesmaids and family members. ✨";
-    } 
-    // 5. Location, Travel & Timings
-    else if (["location", "address", "ekkada", "where", "outdoor", "home", "travel", "morning", "studio", "nearby"].some(word => text.includes(word))) {
-      return "We provide services at our location and also offer doorstep/venue travel for bridal bookings (even for early morning slots!). Travel charges apply based on the distance. 🚗";
-    } 
-    // 6. Booking Availability & Trust
-    else if (["available", "date", "slot", "last minute", "confirm", "cancel", "reschedule", "photos", "instagram", "portfolio", "reviews", "before", "after", "experience", "book"].some(word => text.includes(word))) {
-      return "To check date availability or view our customer reviews and portfolio, please message us directly. Slots fill up very fast! 📅";
-    } 
-    // 7. Fallback Message
-    else {
-      return "Thank you for your message! To give you the best and most accurate details, please click 'Book Now' to connect with us directly on WhatsApp. 💫";
-    }
-  };
-
-  const handleSendMessage = () => {
+  // Real AI API Call Handler
+  const handleSendMessage = async () => {
     if (!userInput.trim()) return;
-    const newMsgs = [...messages, { role: 'user', text: userInput }];
+    const userText = userInput;
+    const newMsgs = [...messages, { role: 'user', text: userText }];
     setMessages(newMsgs);
     setUserInput("");
     
-    // స్మార్ట్ రిప్లై ని సెట్ చేయడం
-    setTimeout(() => {
-      const aiReply = getLuminaResponse(userInput);
-      setMessages([...newMsgs, { role: 'ai', text: aiReply }]);
-    }, 800);
+    // Typing state animation la chupinchadaniki
+    const typingMsgs = [...newMsgs, { role: 'ai', text: "Typing..." }];
+    setMessages(typingMsgs);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }),
+      });
+      const data = await res.json();
+      
+      // Real AI response set cheyadam
+      setMessages([...newMsgs, { role: 'ai', text: data.reply }]);
+    } catch (err) {
+      setMessages([...newMsgs, { role: 'ai', text: "Oops! Technical issue vachindi. Please WhatsApp us!" }]);
+    }
   };
 
-  // బుకింగ్ హ్యాండిలర్ - API Call + WhatsApp Redirect
+  // Booking Handler
   const handleBooking = async (e: any) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -74,7 +54,6 @@ export default function Home() {
     const data = Object.fromEntries(formData);
 
     try {
-      // 1. Send Email via Backend API
       await fetch('/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +63,6 @@ export default function Home() {
       console.error("Failed to send email notification:", err);
     }
 
-    // 2. Open WhatsApp for real-time contact
     const message = `New Booking Request:%0A- Name: ${data.fullName}%0A- Phone: ${data.phone}%0A- Service: ${data.service}%0A- Date: ${data.date}%0A- Requests: ${data.comments}`;
     window.open(`https://wa.me/918123534708?text=${message}`, "_blank"); 
     
@@ -95,10 +73,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative selection:bg-[#d4af37]/30">
       
-      {/* HEADER */}
       <Header onBookClick={() => setIsFormOpen(true)} />
 
-      {/* BACKGROUND ORBS */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <motion.div animate={{ x: [0, 50, 0], y: [0, 40, 0] }} transition={{ duration: 20, repeat: Infinity }} className="absolute top-[-5%] left-[-5%] w-[500px] h-[500px] bg-[#d4af37]/10 blur-[120px] rounded-full" />
         <motion.div animate={{ x: [0, -50, 0], y: [0, 60, 0] }} transition={{ duration: 25, repeat: Infinity }} className="absolute bottom-[-5%] right-[-5%] w-[600px] h-[600px] bg-[#b76e79]/10 blur-[150px] rounded-full" />
@@ -111,7 +87,6 @@ export default function Home() {
         </motion.h1>
       </section>
 
-      {/* SERVICES SECTION */}
       <section id="services" className="relative py-32 px-6 max-w-7xl mx-auto scroll-mt-24">
         <h2 className="text-4xl text-center text-[#d4af37] font-serif mb-20">Our Services</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -134,7 +109,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BOOKING FORM MODAL */}
       <AnimatePresence>
         {isFormOpen && (
           <>
@@ -171,7 +145,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* AI BOT CHAT */}
+      {/* CHATBOT WINDOW */}
       <div className="fixed bottom-6 right-6 z-[200]">
         <motion.button onClick={() => setIsLuminaChatOpen(!isLuminaChatOpen)} whileHover={{ scale: 1.1 }} className="w-14 h-14 bg-gradient-to-tr from-[#d4af37] to-[#f5e1a4] rounded-full flex items-center justify-center text-black shadow-xl">✨</motion.button>
         <AnimatePresence>
