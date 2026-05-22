@@ -26,7 +26,7 @@ export default function Home() {
     setMessages(newMsgs);
     setUserInput("");
     
-    // Typing state animation la chupinchadaniki
+    // Typing state animation
     const typingMsgs = [...newMsgs, { role: 'ai', text: "Typing..." }];
     setMessages(typingMsgs);
 
@@ -38,7 +38,7 @@ export default function Home() {
       });
       const data = await res.json();
       
-      // Real AI response set cheyadam
+      // Real AI response
       setMessages([...newMsgs, { role: 'ai', text: data.reply }]);
     } catch (err) {
       setMessages([...newMsgs, { role: 'ai', text: "Oops! Technical issue vachindi. Please WhatsApp us!" }]);
@@ -145,7 +145,6 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* CHATBOT WINDOW */}
       <div className="fixed bottom-6 right-6 z-[200]">
         <motion.button onClick={() => setIsLuminaChatOpen(!isLuminaChatOpen)} whileHover={{ scale: 1.1 }} className="w-14 h-14 bg-gradient-to-tr from-[#d4af37] to-[#f5e1a4] rounded-full flex items-center justify-center text-black shadow-xl">✨</motion.button>
         <AnimatePresence>
