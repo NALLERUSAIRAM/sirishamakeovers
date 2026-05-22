@@ -28,7 +28,7 @@ export default function Home() {
     }, 800);
   };
 
-  // బుకింగ్ హ్యాండిలర్ - API Call + WhatsApp Redirect
+  // బుకింగ్ హ్యాండిలర్ - API Call (Correct Path) + WhatsApp Redirect
   const handleBooking = async (e: any) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -37,8 +37,8 @@ export default function Home() {
     const data = Object.fromEntries(formData);
 
     try {
-      // 1. Send Email via Backend API
-      await fetch('/api/booking', {
+      // 1. Send Email via Backend API (Changed path to /bookings)
+      await fetch('/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -47,7 +47,7 @@ export default function Home() {
       console.error("Failed to send email notification:", err);
     }
 
-    // 2. Open WhatsApp for real-time contact (మీ వాట్సాప్ నెంబర్)
+    // 2. Open WhatsApp for real-time contact
     const message = `New Booking Request:%0A- Name: ${data.fullName}%0A- Phone: ${data.phone}%0A- Service: ${data.service}%0A- Date: ${data.date}%0A- Requests: ${data.comments}`;
     window.open(`https://wa.me/918123534708?text=${message}`, "_blank"); 
     
@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative selection:bg-[#d4af37]/30">
       
-      {/* HEADER (Gallery prop removed) */}
+      {/* HEADER */}
       <Header onBookClick={() => setIsFormOpen(true)} />
 
       {/* BACKGROUND ORBS */}
