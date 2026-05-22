@@ -18,17 +18,54 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); 
   }, [messages]);
 
+  // అడ్వాన్స్‌డ్ AI బ్రెయిన్ (కస్టమర్ అడిగే అన్ని ప్రశ్నల కోసం)
+  const getLuminaResponse = (input: string) => {
+    const text = input.toLowerCase();
+
+    // 1. Greetings
+    if (["hi", "hello", "hey", "namaste", "hye", "hy"].some(word => text.includes(word))) {
+      return "Hello! Welcome to Sirisha Makeovers ✨. How can I make your special day more beautiful?";
+    } 
+    // 2. Pricing, Packages & Offers
+    else if (["price", "cost", "entha", "rate", "charges", "package", "advance", "trial", "hd", "airbrush", "offer", "discount", "emi", "combo"].some(word => text.includes(word))) {
+      return "Our packages (HD/Airbrush) are customized based on the look you want! An advance payment is required to block your date. Please click 'Book Now' or message us on WhatsApp for exact pricing and trial details.";
+    } 
+    // 3. Skin, Makeup Quality & Brands
+    else if (["skin", "oily", "sensitive", "acne", "marks", "waterproof", "natural", "dark", "sweat", "brands", "mac", "huda", "products", "hygiene", "long", "hours"].some(word => text.includes(word))) {
+      return "We use 100% original, premium, and safe products suitable for all skin types and tones. Our makeup is highly long-lasting, sweat-proof, and flawless! 💖";
+    } 
+    // 4. Services Included
+    else if (["saree", "draping", "hairstyle", "hair", "jewellery", "lashes", "nails", "groom", "bridesmaid", "men", "mehendi", "haldi", "reception", "engagement", "party", "baby", "shoot"].some(word => text.includes(word))) {
+      return "Yes! We provide Makeup, Hairstyling, and Saree Draping for Bridal, Reception, Haldi, Party, and Shoots. We also cater to bridesmaids and family members. ✨";
+    } 
+    // 5. Location, Travel & Timings
+    else if (["location", "address", "ekkada", "where", "outdoor", "home", "travel", "morning", "studio", "nearby"].some(word => text.includes(word))) {
+      return "We provide services at our location and also offer doorstep/venue travel for bridal bookings (even for early morning slots!). Travel charges apply based on the distance. 🚗";
+    } 
+    // 6. Booking Availability & Trust
+    else if (["available", "date", "slot", "last minute", "confirm", "cancel", "reschedule", "photos", "instagram", "portfolio", "reviews", "before", "after", "experience", "book"].some(word => text.includes(word))) {
+      return "To check date availability or view our customer reviews and portfolio, please message us directly. Slots fill up very fast! 📅";
+    } 
+    // 7. Fallback Message
+    else {
+      return "Thank you for your message! To give you the best and most accurate details, please click 'Book Now' to connect with us directly on WhatsApp. 💫";
+    }
+  };
+
   const handleSendMessage = () => {
     if (!userInput.trim()) return;
     const newMsgs = [...messages, { role: 'user', text: userInput }];
     setMessages(newMsgs);
     setUserInput("");
+    
+    // స్మార్ట్ రిప్లై ని సెట్ చేయడం
     setTimeout(() => {
-      setMessages([...newMsgs, { role: 'ai', text: "Thank you! Please click 'Book Now' to secure your date." }]);
+      const aiReply = getLuminaResponse(userInput);
+      setMessages([...newMsgs, { role: 'ai', text: aiReply }]);
     }, 800);
   };
 
-  // బుకింగ్ హ్యాండిలర్ - API Call (Correct Path) + WhatsApp Redirect
+  // బుకింగ్ హ్యాండిలర్ - API Call + WhatsApp Redirect
   const handleBooking = async (e: any) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -37,7 +74,7 @@ export default function Home() {
     const data = Object.fromEntries(formData);
 
     try {
-      // 1. Send Email via Backend API (Changed path to /bookings)
+      // 1. Send Email via Backend API
       await fetch('/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
