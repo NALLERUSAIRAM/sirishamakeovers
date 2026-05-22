@@ -8,8 +8,9 @@ export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userInput, setUserInput] = useState("");
+  // వెల్‌కమ్ మెసేజ్ ఇంగ్లీష్ లో మార్చాను
   const [messages, setMessages] = useState([
-    { role: 'ai', text: "Hi andi! Nenu Lumina ✨. Maa services gurinchi details kavalanna leda booking cheskovalanna nannu adagandi!" }
+    { role: 'ai', text: "Hi! I'm Lumina ✨. How can I help you with our makeover services or bookings today?" }
   ]);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -18,7 +19,6 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); 
   }, [messages]);
 
-  // Real AI API Call Handler
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
     const userText = userInput;
@@ -26,7 +26,6 @@ export default function Home() {
     setMessages(newMsgs);
     setUserInput("");
     
-    // Typing state animation
     const typingMsgs = [...newMsgs, { role: 'ai', text: "Typing..." }];
     setMessages(typingMsgs);
 
@@ -38,14 +37,12 @@ export default function Home() {
       });
       const data = await res.json();
       
-      // Real AI response
       setMessages([...newMsgs, { role: 'ai', text: data.reply }]);
     } catch (err) {
-      setMessages([...newMsgs, { role: 'ai', text: "Oops! Technical issue vachindi. Please WhatsApp us!" }]);
+      setMessages([...newMsgs, { role: 'ai', text: "Oops! Technical issue. Please contact us on WhatsApp!" }]);
     }
   };
 
-  // Booking Handler
   const handleBooking = async (e: any) => {
     e.preventDefault();
     setIsSubmitting(true);
